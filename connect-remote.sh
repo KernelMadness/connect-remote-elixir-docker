@@ -25,6 +25,7 @@ REMOTE_NODE_NAME=$3
 : ${ERLANG_COOKIE:=mycookie}
 
 ELIXIR="'$(cat ${BASH_SOURCE%/*}/connect_remote.ex)'"
+RPATH="/app/.heroku/node/bin:/app/.heroku/yarn/bin:/app/bin:/app/./node_modules/.bin:/app/.platform_tools:/app/.platform_tools/erlang/bin:/app/.platform_tools/elixir/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 echo -n "Creating tunnel..."
 ssh -f -o ExitOnForwardFailure=yes $USER_SERVER \
@@ -33,7 +34,7 @@ ssh -f -o ExitOnForwardFailure=yes $USER_SERVER \
   echo 'Sleeping for 1 second to wait for local IEx session' &&
   sleep 1 &&
   echo -n 'Remote: connecting to remote node to local node...' &&
-  docker exec $CONTAINER \
+  docker exec -e PATH=$RPATH $CONTAINER \
     elixir --name temp@127.0.0.1 --cookie $ERLANG_COOKIE \
       -e $ELIXIR $REMOTE_NODE_NAME $LOCAL_NODE_NAME $DOCKER_BRIDGE_IP &&
   sleep 5
